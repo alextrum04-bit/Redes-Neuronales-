@@ -19,9 +19,23 @@ import random
 # Third-party libraries
 import numpy as np
 
+#Cross-Entropy
+
+class CrossEntropyCost(object):
+    @staticmethod
+    def fn(a, y):
+        """Devuelve el costo para la salida `a` y el resultado deseado "y"."""
+        return np.sum(np.nan_to_num(-y*np.log(a) - (1-y)*np.log(1-a)))
+
+    @staticmethod
+    def delta(z, a, y):
+        """Devuelve el error delta en la última capa."""
+        # Con cross-entropy se simplifica: no depende de la derivada de la sigmoide
+        return (a - y)
+
 class Network(object):
 
-    def __init__(self, sizes):
+    def __init__(self, sizes, cost=CrossEntropyCost):
         """The list ``sizes`` contains the number of neurons in the
         respective layers of the network.  For example, if the list
         was [2, 3, 1] then it would be a three-layer network, with the
@@ -37,6 +51,8 @@ class Network(object):
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
+        self.cost = cost
+
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
@@ -147,3 +163,5 @@ def sigmoid(z):
 def sigmoid_prime(z):
     """Derivative of the sigmoid function."""
     return sigmoid(z)*(1-sigmoid(z))
+
+
