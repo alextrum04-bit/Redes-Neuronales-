@@ -32,6 +32,7 @@ class CrossEntropyCost(object):
         """Devuelve el error delta en la última capa."""
         # Con cross-entropy se simplifica: no depende de la derivada de la sigmoide
         return (a - y)
+#---------------------
 
 class Network(object):
 
@@ -51,8 +52,11 @@ class Network(object):
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
-        self.cost = cost
-
+        #Adam necesita momentos de primer y segundo orden (m y v) para cada peso y sesgo.
+        self.m_w = [np.zeros(w.shape) for w in self.weights]
+        self.v_w = [np.zeros(w.shape) for w in self.weights]
+        self.m_b = [np.zeros(b.shape) for b in self.biases]
+        self.v_b = [np.zeros(b.shape) for b in self.biases]
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
@@ -61,7 +65,7 @@ class Network(object):
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            test_data=None):
+        test_data=None, beta1=0.9, beta2=0.999, epsilon=1e-8):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
@@ -78,17 +82,21 @@ class Network(object):
             test_data = list(test_data)
             n_test = len(test_data)
 
+        t = 0  # contador global de mini-batches
+         
         for j in range(epochs):
             random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
+                t += 1
+                self.update_mini_batch_adam(mini_batch, eta, t, beta1, beta2, epsilon)
             if test_data:
-                print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test))
+                print("Epoch {} : {} / {}".format(j+1, self.evaluate(test_data), n_test))
+            
             else:
-                print("Epoch {} complete".format(j))
+                print("Epoch {} complete".format(j+1))
 
     def update_mini_batch(self, mini_batch, eta):
         """Update the network's weights and biases by applying
@@ -140,6 +148,40 @@ class Network(object):
             nabla_b[-l] = delta
             nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
         return (nabla_b, nabla_w)
+
+    def update_mini_batch_adam(self, mini_batch, eta, t, beta1, beta2, epsilon):
+        #Actualiza pesos y biases usando Adam en un mini-batch
+        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
+    
+    
+            # Acumulamos gradientes con backprop
+        for x, y in mini_batch:
+            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
+            nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        # Promedio del mini-batch
+        nabla_b = [nb / len(mini_batch) for nb in nabla_b]
+        nabla_w = [nw / len(mini_batch) for nw in nabla_w]
+         
+         # Actualización Adam
+        self.m_w = [beta1 * mw + (1-beta1) * nw for mw, nw in zip(self.m_w, nabla_w)]
+        self.v_w = [beta2 * vw + (1-beta2) * (nw**2) for vw, nw in zip(self.v_w, nabla_w)]
+        self.m_b = [beta1 * mb + (1-beta1) * nb for mb, nb in zip(self.m_b, nabla_b)]
+        self.v_b = [beta2 * vb + (1-beta2) * (nb**2) for vb, nb in zip(self.v_b, nabla_b)]
+         
+         # Corrección de sesgo
+        m_w_hat = [mw / (1-beta1**t) for mw in self.m_w]
+        v_w_hat = [vw / (1-beta2**t) for vw in self.v_w]
+        m_b_hat = [mb / (1-beta1**t) for mb in self.m_b]
+        v_b_hat = [vb / (1-beta2**t) for vb in self.v_b]
+         
+         # Actualización final
+        self.weights = [w - eta * mw / (np.sqrt(vw) + epsilon)
+                    for w, mw, vw in zip(self.weights, m_w_hat, v_w_hat)]
+        
+        self.biases = [b - eta * mb / (np.sqrt(vb) + epsilon)
+                   for b, mb, vb in zip(self.biases, m_b_hat, v_b_hat)]
 
     def evaluate(self, test_data):
         """Return the number of test inputs for which the neural
