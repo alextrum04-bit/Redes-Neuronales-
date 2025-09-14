@@ -39,11 +39,9 @@ num_classes=10
 y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
-y_trainc[10000]
-
 model = Sequential()
-model.add(Dense(512, activation='sigmoid', input_shape=(784,)))
-model.add(Dense(num_classes, activation='sigmoid'))
+model.add(Dense(512, activation='softmax', input_shape=(784,)))
+model.add(Dense(num_classes, activation='softmax'))
 
 model.summary()
 
