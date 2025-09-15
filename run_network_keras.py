@@ -17,9 +17,9 @@ from tensorflow.keras import regularizers
 import numpy as np
 import matplotlib.pyplot as plt
 
-learning_rate = 0.8
-epochs = 15
-batch_size = 7
+learning_rate = 0.01
+epochs = 20
+batch_size = 50
 
 dataset=mnist.load_data()
 
@@ -40,7 +40,9 @@ y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Dense(512, activation='softmax', input_shape=(784,)))
+model.add(Dense(512, activation='sigmoid', input_shape=(784,)))  #La funcion de costo es 'sigmoid'
+model.add(Dense(256, activation='sigmoid'))                      #Agrego una capa oculta
+
 model.add(Dense(num_classes, activation='softmax'))
 
 model.summary()
