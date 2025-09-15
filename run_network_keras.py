@@ -20,6 +20,7 @@ from tensorflow.keras import regularizers
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 import dagshub
 
 dagshub.init(repo_owner='alextrum04', repo_name='my-first-repo', mlflow=True)
@@ -50,8 +51,15 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 with mlflow.start_run(run_name="tanh"):
     
     model = Sequential()
-    model.add(Dense(512, activation='tanh', input_shape=(784,)))
-    model.add(Dense(256, activation='tanh'))
+    model.add(Dense(512, 
+                    activation='tanh', 
+                    input_shape=(784,), 
+                    kernel_regularizer=regularizers.l1(0.001)))
+    
+    model.add(Dense(256,
+                     activation='tanh',
+                     kernel_regularizer=regularizers.l1(0.001)))
+    
     model.add(Dense(num_classes, activation='softmax'))                      
     
     model.summary()
