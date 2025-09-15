@@ -7,6 +7,9 @@ Original file is located at
     https://colab.research.google.com/drive/1hgRqnDiUySzUyUFiDInnhXF3UVz4m01t
 """
 
+import mlflow
+import mlflow.keras
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.datasets import mnist
@@ -16,6 +19,12 @@ from tensorflow.keras.optimizers import RMSprop, SGD
 from tensorflow.keras import regularizers
 import numpy as np
 import matplotlib.pyplot as plt
+
+import dagshub
+
+dagshub.init(repo_owner='alextrum04', repo_name='my-first-repo', mlflow=True)
+mlflow.set_tracking_uri("https://dagshub.com/alextrum04/my-first-repo.mlflow")
+mlflow.set_experiment("MNIST_Experimentos")
 
 learning_rate = 0.01
 epochs = 20
@@ -33,27 +42,51 @@ x_testv = x_testv.astype('float32')
 x_trainv /= 255.  # x_trainv = x_trainv/255
 x_testv /= 255.
 
-
-
 num_classes=10
 y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
-model = Sequential()
-model.add(Dense(512, activation='tanh', input_shape=(784,)))  #La funcion de costo es 'tanh'
-model.add(Dense(256, activation='tanh'))                      #Agrego una capa oculta
 
-model.add(Dense(num_classes, activation='softmax'))
-
-model.summary()
-
-model.compile(loss=keras.losses.CategoricalCrossentropy(from_logits=True),
+with mlflow.start_run(run_name="tanh"):
+    
+    model = Sequential()
+    model.add(Dense(512, activation='tanh', input_shape=(784,)))
+    model.add(Dense(256, activation='tanh'))
+    model.add(Dense(num_classes, activation='softmax'))                      
+    
+    model.summary()
+    
+    model.compile(loss=keras.losses.CategoricalCrossentropy(from_logits=True),
               optimizer=SGD(learning_rate=learning_rate),
               metrics=['accuracy'])
-
-history = model.fit(x_trainv, y_trainc,
+    
+    history = model.fit(x_trainv, y_trainc,
                     batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
                     validation_data=(x_testv, y_testc)
                     )
+    
+    test_loss, test_acc = model.evaluate(x_testv, y_testc, verbose=0)
+
+    mlflow.log_param("optimizer", "SGD")
+    mlflow.log_param("learning_rate", learning_rate)
+    mlflow.log_param("epochs", epochs)
+    mlflow.log_param("batch_size", batch_size)
+    mlflow.log_param("hidden_layers", [512, 256])
+    mlflow.log_param("activation", "tanh")
+    mlflow.log_param("output_activation", "softmax")
+
+    for epoch in range(epochs):
+        mlflow.log_metric("train_accuracy", history.history['accuracy'][epoch], step=epoch)
+        mlflow.log_metric("val_accuracy", history.history['val_accuracy'][epoch], step=epoch)
+        mlflow.log_metric("train_loss", history.history['loss'][epoch], step=epoch)
+        mlflow.log_metric("val_loss", history.history['val_loss'][epoch], step=epoch)
+
+    
+    mlflow.log_metric("test_accuracy", test_acc)
+    mlflow.log_metric("test_loss", test_loss)
+
+    
+    mlflow.keras.log_model(model, "-modelo-")
+    mlflow.log_artifacts("modelo", artifact_path="-modelo-")
