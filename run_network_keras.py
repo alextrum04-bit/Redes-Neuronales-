@@ -48,18 +48,15 @@ y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 
-with mlflow.start_run(run_name="tanh_l1_l2"):
+with mlflow.start_run(run_name="Regularizacion Dropout"):
     
     model = Sequential()
-    model.add(Dense(512, 
-                    activation='tanh', 
-                    input_shape=(784,), 
-                    kernel_regularizer=regularizers.l1_l2(l1=0.001, l2=0.001)))
-    
-    model.add(Dense(256,
-                     activation='tanh',
-                     kernel_regularizer=regularizers.l1_l2(l1=0.001, l2=0.001)))
-    
+    model.add(Dense(512, activation='tanh', input_shape=(784,)))
+    model.add(Dropout(0.5))
+
+    model.add(Dense(256,activation='tanh'))
+    model.add(Dropout(0.5))
+
     model.add(Dense(num_classes, activation='softmax'))                      
     
     model.summary()
@@ -96,5 +93,5 @@ with mlflow.start_run(run_name="tanh_l1_l2"):
     mlflow.log_metric("test_loss", test_loss)
 
     
-    mlflow.keras.save_model(model, "-modelo-3")
-    mlflow.log_artifacts("-modelo-3", artifact_path="-modelo-3")
+    mlflow.keras.save_model(model, "-modelo-4")
+    mlflow.log_artifacts("-modelo-4", artifact_path="-modelo-4")
