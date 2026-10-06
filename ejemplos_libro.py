@@ -3,7 +3,7 @@
     Adapted for Python 3.5.2
 
     Usage in shell:
-        python3.5 test.py
+        python ejemplos_libro.py
 
     Network (network.py and network2.py) parameters:
         2nd param is epochs count
@@ -14,6 +14,10 @@
         Michał Dobrzański, 2016
         dobrzanski.michal.daniel@gmail.com
 """
+
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))  # El codigo de las redes vive en src/
 
 # ----------------------
 # - read the input data:
@@ -117,7 +121,7 @@ net.SGD(training_data, 30, 10, 0.1,
         You may also want to grab the proper NVidia driver, choose it form there:
         System Settings > Software & Updates > Additional Drivers.
     3) should work, run it with:
-        THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python3.5 test.py
+        THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python ejemplos_libro.py
         http://deeplearning.net/software/theano/tutorial/using_gpu.html
     4) Optionally, you can add cuDNN support from:
         https://developer.nvidia.com/cudnn

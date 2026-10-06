@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))  # El codigo de las redes vive en src/
+
 import mnist_loader #Abre el archivo que ya esta en el repositorio de DeepLearning el cual tiene funciones para cargar el dataset
 import network      #Abre el archivo Network el cual implementa una red neuronal con backpropagation y entrenamiento por SGD
 

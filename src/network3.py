@@ -61,7 +61,10 @@ else:
         "network3.py to set\nthe GPU flag to True.")
 
 #### Load the MNIST data
-def load_data_shared(filename="mnist.pkl.gz"):
+def load_data_shared(filename=None):
+    if filename is None:
+        from mnist_loader import DATA_PATH
+        filename = DATA_PATH
     f = gzip.open(filename, 'rb')
     training_data, validation_data, test_data = pickle.load(f, encoding="latin1")
     f.close()

@@ -1,0 +1,5 @@
+numpy
+# Opcional: solo para src/mnist_svm.py
+# scikit-learn
+# Opcional: solo para src/network3.py (redes convolucionales, Theano ya no se mantiene)
+# Theano

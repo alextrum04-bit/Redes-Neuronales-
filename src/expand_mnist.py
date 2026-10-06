@@ -4,19 +4,17 @@
 Take the 50,000 MNIST training images, and create an expanded set of
 250,000 images, by displacing each training image up, down, left and
 right, by one pixel.  Save the resulting file to
-../data/mnist_expanded.pkl.gz.
+data/mnist_expanded.pkl.gz.
 
 Note that this program is memory intensive, and may not run on small
 systems.
 
 """
 
-from __future__ import print_function
-
 #### Libraries
 
 # Standard library
-import cPickle
+import pickle
 import gzip
 import os.path
 import random
@@ -24,13 +22,17 @@ import random
 # Third-party libraries
 import numpy as np
 
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+SOURCE = os.path.join(DATA_DIR, "mnist.pkl.gz")
+TARGET = os.path.join(DATA_DIR, "mnist_expanded.pkl.gz")
+
 print("Expanding the MNIST training set")
 
-if os.path.exists("../data/mnist_expanded.pkl.gz"):
+if os.path.exists(TARGET):
     print("The expanded training set already exists.  Exiting.")
 else:
-    f = gzip.open("../data/mnist.pkl.gz", 'rb')
-    training_data, validation_data, test_data = cPickle.load(f)
+    f = gzip.open(SOURCE, 'rb')
+    training_data, validation_data, test_data = pickle.load(f, encoding="latin1")
     f.close()
     expanded_training_pairs = []
     j = 0 # counter
@@ -55,6 +57,6 @@ else:
     random.shuffle(expanded_training_pairs)
     expanded_training_data = [list(d) for d in zip(*expanded_training_pairs)]
     print("Saving expanded data. This may take a few minutes.")
-    f = gzip.open("../data/mnist_expanded.pkl.gz", "w")
-    cPickle.dump((expanded_training_data, validation_data, test_data), f)
+    f = gzip.open(TARGET, "wb")
+    pickle.dump((expanded_training_data, validation_data, test_data), f)
     f.close()

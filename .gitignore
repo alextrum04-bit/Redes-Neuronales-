@@ -1,1 +1,17 @@
-__pycache__
+# Python
+__pycache__/
+*.pyc
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Datos generados (expand_mnist.py)
+data/mnist_expanded.pkl.gz
+
+# Editores / sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

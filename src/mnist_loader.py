@@ -12,9 +12,14 @@ function usually called by our neural network code.
 # Standard library
 import pickle
 import gzip
+import os
 
 # Third-party libraries
 import numpy as np
+
+# Ruta al dataset, relativa a este archivo (funciona desde cualquier directorio)
+DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "..", "data", "mnist.pkl.gz")
 
 def load_data():
     """Return the MNIST data as a tuple containing the training data,
@@ -35,7 +40,7 @@ def load_data():
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
-    f = gzip.open('mnist.pkl.gz', 'rb')
+    f = gzip.open(DATA_PATH, 'rb')
     training_data, validation_data, test_data = pickle.load(f, encoding="latin1")
     f.close()
     return (training_data, validation_data, test_data)
