@@ -1,3 +1,6 @@
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'libro_nielsen'))  # para importar mnist_loader
+
 import mnist_loader #Abre el archivo que ya esta en el repositorio de DeepLearning el cual tiene funciones para cargar el dataset
 import network      #Abre el archivo Network el cual implementa una red neuronal con backpropagation y entrenamiento por SGD
 
