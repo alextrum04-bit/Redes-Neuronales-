@@ -1,1 +1,13 @@
-__pycache__
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Modelos entrenados y experimentos
+*.h5
+*.keras
+mlruns/
+-modelo-*/
+
+# Datos pesados o personales
+08_desbloqueo_facial/data/
+08_desbloqueo_facial/models/
